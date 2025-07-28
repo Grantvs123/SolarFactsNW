@@ -113,7 +113,7 @@ temp/
 flows_*.json.backup
 .config.*.json.backup
 
-# AI PatchBay specific
+# SolarFactsNW specific
 /logs/fallbacks/
 /test_outputs/
 /mock_data/

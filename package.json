@@ -1,7 +1,7 @@
 {
-  "name": "aipatchbay-local",
+  "name": "solarfactsnw-local",
   "version": "1.0.0",
-  "description": "SolarFactsNW AI PatchBay System - Phase 4D Complete",
+  "description": "SolarFactsNW SolarFactsNW System - Phase 4D Complete",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/Grantvs123/SolarFactsNW.git"
   },
-  "keywords": ["solar", "ai", "patchbay", "node-red", "lead-management"],
+  "keywords": ["solar", "ai", "solarfactsnw", "node-red", "lead-management"],
   "author": "SolarFactsNW Team",
   "license": "ISC",
   "bugs": {
