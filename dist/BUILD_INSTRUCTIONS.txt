@@ -1,0 +1,164 @@
+
+SolarFactsNW Windows Installer - Build Instructions
+===================================================
+
+This guide explains how to compile the SolarFactsNW Windows installer using Inno Setup.
+
+PREREQUISITES
+-------------
+1. Windows PC (Windows 10/11 recommended)
+2. Inno Setup 6.x or later
+3. SolarFactsNW source code
+
+STEP 1: INSTALL INNO SETUP
+---------------------------
+1. Download Inno Setup from: https://jrsoftware.org/isinfo.php
+2. Download the latest version (6.x recommended)
+3. Run the installer and follow the setup wizard
+4. Choose "Full installation" to include all components
+5. The installer will create shortcuts in your Start Menu
+
+STEP 2: PREPARE THE SOURCE FILES
+---------------------------------
+1. Ensure you have the complete SolarFactsNW source code
+2. Copy this entire 'dist' folder to your Windows PC
+3. Place the 'dist' folder inside your SolarFactsNW project directory
+4. Verify the directory structure looks like this:
+   SolarFactsNW/
+   ├── dist/
+   │   ├── SolarFactsNW.iss
+   │   ├── license.txt
+   │   ├── readme.txt
+   │   ├── start_solarfactsnw.bat
+   │   └── BUILD_INSTRUCTIONS.txt
+   ├── package.json
+   ├── settings.js
+   ├── scripts/
+   └── [other SolarFactsNW files]
+
+STEP 3: COMPILE THE INSTALLER
+------------------------------
+Method 1 - Using Inno Setup GUI:
+1. Open Inno Setup Compiler from Start Menu
+2. Click "Open" and browse to SolarFactsNW/dist/SolarFactsNW.iss
+3. Click "Build" menu > "Compile" (or press F9)
+4. The compiler will process the script and create the installer
+5. Look for "SolarFactsNW-Setup-v1.0.0.exe" in the dist folder
+
+Method 2 - Using Command Line:
+1. Open Command Prompt or PowerShell
+2. Navigate to your SolarFactsNW/dist directory
+3. Run: "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" SolarFactsNW.iss
+4. The installer will be created in the same directory
+
+STEP 4: TEST THE INSTALLER
+---------------------------
+1. Locate the generated "SolarFactsNW-Setup-v1.0.0.exe" file
+2. Test on a clean Windows system (or virtual machine)
+3. Run the installer and verify:
+   - Installation completes without errors
+   - Files are copied to C:\Program Files\SolarFactsNW
+   - Start Menu shortcuts are created
+   - Desktop shortcut works (if selected)
+   - Node.js detection works properly
+   - Application launches correctly after installation
+
+STEP 5: DISTRIBUTE THE INSTALLER
+---------------------------------
+1. The final installer file is: SolarFactsNW-Setup-v1.0.0.exe
+2. This single file contains everything needed for installation
+3. Users can run this file to install SolarFactsNW on their systems
+4. No additional files are needed for distribution
+
+CUSTOMIZATION OPTIONS
+----------------------
+To modify the installer, edit SolarFactsNW.iss and change:
+
+- Version number: Update #define MyAppVersion "1.0.0"
+- Company name: Update #define MyAppPublisher "Your Company"
+- Installation directory: Modify DefaultDirName
+- Required Node.js version: Change MinNodeVersion constant
+- Files to include/exclude: Modify [Files] section
+- Shortcuts: Customize [Icons] section
+
+After making changes, recompile using Step 3.
+
+TROUBLESHOOTING
+---------------
+Common issues and solutions:
+
+1. "File not found" errors during compilation:
+   - Verify all source files exist in the correct locations
+   - Check that paths in the .iss file are correct
+   - Ensure you're running from the correct directory
+
+2. "Access denied" errors:
+   - Run Inno Setup as Administrator
+   - Check file permissions on source directories
+   - Temporarily disable antivirus software
+
+3. Large installer size:
+   - The installer includes all source files except node_modules
+   - This is normal and expected for Node.js applications
+   - Users will need to run 'npm install' after installation
+
+4. Node.js detection not working:
+   - The installer checks registry entries for Node.js
+   - Some Node.js installations may not create these entries
+   - Users can still proceed with installation manually
+
+5. Compilation takes a long time:
+   - This is normal for projects with many files
+   - The LZMA compression creates smaller installers but takes longer
+   - You can change Compression=lzma to Compression=zip for faster builds
+
+ADVANCED FEATURES
+-----------------
+The installer includes several advanced features:
+
+1. Node.js Version Detection:
+   - Automatically detects installed Node.js version
+   - Warns if version is too old or missing
+   - Allows user to continue installation anyway
+
+2. Configuration Preservation:
+   - Preserves existing .env.local files during updates
+   - Uses onlyifdoesntexist and uninsneveruninstall flags
+
+3. Modern UI:
+   - Uses WizardStyle=modern for contemporary appearance
+   - Supports window resizing and high-DPI displays
+
+4. Comprehensive Uninstall:
+   - Removes all installed files and folders
+   - Cleans up generated files (logs, temporary files)
+   - Preserves user configuration files
+
+5. Professional Metadata:
+   - Includes version information in the executable
+   - Proper Windows integration with Add/Remove Programs
+   - Digital signature support (requires code signing certificate)
+
+SUPPORT
+-------
+For issues with the installer build process:
+1. Check the Inno Setup documentation: https://jrsoftware.org/ishelp/
+2. Review the compilation log for specific error messages
+3. Verify all file paths and dependencies
+4. Test on a clean Windows system
+
+For SolarFactsNW application issues:
+1. Visit: https://github.com/solarfactsnw/solarfactsnw
+2. Check existing issues or create a new one
+3. Include installer version and Windows version information
+
+VERSION HISTORY
+---------------
+v1.0.0 - Initial release
+- Complete Windows installer with Node.js detection
+- Modern UI with professional appearance
+- Configuration file preservation
+- Comprehensive uninstall support
+- Full Windows 10/11 compatibility
+
+Last updated: July 28, 2025
