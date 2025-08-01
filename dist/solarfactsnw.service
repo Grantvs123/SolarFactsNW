@@ -1,0 +1,20 @@
+[Unit]
+Description=SolarFactsNW Production Powerhouse
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/SolarFactsNW
+Environment=NODE_ENV=production
+EnvironmentFile=/home/ubuntu/SolarFactsNW/.env.local
+ExecStartPre=/usr/bin/node scripts/startup-health-check.js
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=solarfactsnw
+
+[Install]
+WantedBy=multi-user.target

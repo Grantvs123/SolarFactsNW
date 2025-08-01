@@ -1,0 +1,270 @@
+
+[
+    {
+        "id": "health-check-tab",
+        "type": "tab",
+        "label": "Health Check System",
+        "disabled": false,
+        "info": "Comprehensive health monitoring and auto-healing system for SolarFactsNW"
+    },
+    {
+        "id": "startup-health-check",
+        "type": "inject",
+        "z": "health-check-tab",
+        "name": "Startup Health Check",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 5,
+        "topic": "",
+        "payload": "startup",
+        "payloadType": "str",
+        "x": 140,
+        "y": 80,
+        "wires": [
+            [
+                "health-check-function"
+            ]
+        ]
+    },
+    {
+        "id": "scheduled-health-check",
+        "type": "inject",
+        "z": "health-check-tab",
+        "name": "Scheduled Health Check",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "scheduled",
+        "payloadType": "str",
+        "x": 160,
+        "y": 140,
+        "wires": [
+            [
+                "health-check-function"
+            ]
+        ]
+    },
+    {
+        "id": "health-check-function",
+        "type": "function",
+        "z": "health-check-tab",
+        "name": "Health Check Controller",
+        "func": "const HealthChecker = global.get('HealthChecker');\n\nif (!HealthChecker) {\n    node.error('HealthChecker not initialized');\n    return null;\n}\n\nconst checkType = msg.payload;\nnode.status({fill: 'blue', shape: 'dot', text: `Running ${checkType} check...`});\n\n(async () => {\n    try {\n        const healthChecker = new HealthChecker();\n        const healthStatus = await healthChecker.performFullHealthCheck();\n        \n        // Store health status in global context\n        global.set('lastHealthStatus', healthStatus);\n        \n        // Update node status\n        const statusColor = healthStatus.overall === 'healthy' ? 'green' : \n                           healthStatus.overall === 'degraded' ? 'yellow' : 'red';\n        \n        node.status({\n            fill: statusColor, \n            shape: 'dot', \n            text: `${healthStatus.overall} (${healthStatus.healthyServices}/${healthStatus.totalServices})`\n        });\n        \n        // Send results to different outputs based on status\n        const healthyMsg = { ...msg, payload: healthStatus, topic: 'health-status' };\n        const unhealthyServices = Object.entries(healthStatus.services)\n            .filter(([name, service]) => service.status === 'unhealthy')\n            .map(([name]) => name);\n        \n        if (healthStatus.overall === 'healthy') {\n            node.send([healthyMsg, null, null]);\n        } else if (healthStatus.overall === 'degraded') {\n            node.send([null, healthyMsg, null]);\n        } else {\n            const unhealthyMsg = { \n                ...msg, \n                payload: { \n                    healthStatus, \n                    unhealthyServices \n                }, \n                topic: 'unhealthy-services' \n            };\n            node.send([null, null, unhealthyMsg]);\n        }\n        \n    } catch (error) {\n        node.error(`Health check failed: ${error.message}`);\n        node.status({fill: 'red', shape: 'ring', text: 'Check failed'});\n    }\n})();\n\nreturn null;",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 110,
+        "wires": [
+            [
+                "healthy-services-log"
+            ],
+            [
+                "degraded-services-log"
+            ],
+            [
+                "auto-healing-trigger"
+            ]
+        ],
+        "outputLabels": [
+            "Healthy",
+            "Degraded", 
+            "Unhealthy"
+        ]
+    },
+    {
+        "id": "healthy-services-log",
+        "type": "debug",
+        "z": "health-check-tab",
+        "name": "Healthy Services",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "degraded-services-log",
+        "type": "debug",
+        "z": "health-check-tab",
+        "name": "Degraded Services",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 690,
+        "y": 110,
+        "wires": []
+    },
+    {
+        "id": "auto-healing-trigger",
+        "type": "function",
+        "z": "health-check-tab",
+        "name": "Auto-Healing Trigger",
+        "func": "const HealthChecker = global.get('HealthChecker');\n\nif (!HealthChecker) {\n    node.error('HealthChecker not initialized');\n    return null;\n}\n\nconst { healthStatus, unhealthyServices } = msg.payload;\n\nnode.status({fill: 'yellow', shape: 'dot', text: `Healing ${unhealthyServices.length} services...`});\n\n(async () => {\n    try {\n        const healthChecker = new HealthChecker();\n        const healingResult = await healthChecker.autoHeal();\n        \n        if (healingResult) {\n            node.status({fill: 'green', shape: 'dot', text: 'Auto-healing successful'});\n            node.send({ \n                ...msg, \n                payload: { \n                    success: true, \n                    healedServices: unhealthyServices,\n                    timestamp: new Date().toISOString()\n                },\n                topic: 'healing-success'\n            });\n        } else {\n            node.status({fill: 'red', shape: 'dot', text: 'Auto-healing failed'});\n            node.send({ \n                ...msg, \n                payload: { \n                    success: false, \n                    failedServices: unhealthyServices,\n                    timestamp: new Date().toISOString()\n                },\n                topic: 'healing-failed'\n            });\n        }\n        \n    } catch (error) {\n        node.error(`Auto-healing failed: ${error.message}`);\n        node.status({fill: 'red', shape: 'ring', text: 'Healing error'});\n    }\n})();\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 160,
+        "wires": [
+            [
+                "healing-result-log"
+            ]
+        ]
+    },
+    {
+        "id": "healing-result-log",
+        "type": "debug",
+        "z": "health-check-tab",
+        "name": "Healing Results",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 920,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "manual-health-check",
+        "type": "http in",
+        "z": "health-check-tab",
+        "name": "Manual Health Check API",
+        "url": "/api/health/check",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 220,
+        "wires": [
+            [
+                "manual-check-function"
+            ]
+        ]
+    },
+    {
+        "id": "manual-check-function",
+        "type": "function",
+        "z": "health-check-tab",
+        "name": "Manual Check Handler",
+        "func": "const HealthChecker = global.get('HealthChecker');\n\nif (!HealthChecker) {\n    msg.payload = {\n        error: 'HealthChecker not initialized',\n        status: 500\n    };\n    return msg;\n}\n\n(async () => {\n    try {\n        const healthChecker = new HealthChecker();\n        const healthStatus = await healthChecker.performFullHealthCheck();\n        \n        msg.payload = {\n            status: healthStatus.overall === 'healthy' ? 200 : \n                   healthStatus.overall === 'degraded' ? 207 : 503,\n            data: healthStatus\n        };\n        \n        node.send(msg);\n        \n    } catch (error) {\n        msg.payload = {\n            error: error.message,\n            status: 500\n        };\n        node.send(msg);\n    }\n})();\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 220,
+        "wires": [
+            [
+                "health-api-response"
+            ]
+        ]
+    },
+    {
+        "id": "health-api-response",
+        "type": "http response",
+        "z": "health-check-tab",
+        "name": "Health API Response",
+        "statusCode": "msg.payload.status",
+        "headers": {
+            "content-type": "application/json"
+        },
+        "x": 680,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "system-startup-complete",
+        "type": "inject",
+        "z": "health-check-tab",
+        "name": "System Startup Complete",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 10,
+        "topic": "",
+        "payload": "startup-complete",
+        "payloadType": "str",
+        "x": 170,
+        "y": 300,
+        "wires": [
+            [
+                "startup-notification"
+            ]
+        ]
+    },
+    {
+        "id": "startup-notification",
+        "type": "function",
+        "z": "health-check-tab",
+        "name": "Startup Notification",
+        "func": "const healthStatus = global.get('lastHealthStatus');\n\nif (healthStatus) {\n    const message = `🚀 SolarFactsNW startup complete!\\n` +\n                   `Overall status: ${healthStatus.overall}\\n` +\n                   `Services: ${healthStatus.healthyServices}/${healthStatus.totalServices} healthy\\n` +\n                   `Startup time: ${new Date().toLocaleString()}`;\n    \n    node.status({fill: 'green', shape: 'dot', text: 'Startup complete'});\n    \n    msg.payload = {\n        message,\n        healthStatus,\n        timestamp: new Date().toISOString()\n    };\n} else {\n    msg.payload = {\n        message: '⚠️ SolarFactsNW started but health status unknown',\n        timestamp: new Date().toISOString()\n    };\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 300,
+        "wires": [
+            [
+                "startup-complete-log"
+            ]
+        ]
+    },
+    {
+        "id": "startup-complete-log",
+        "type": "debug",
+        "z": "health-check-tab",
+        "name": "Startup Complete",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 300,
+        "wires": []
+    }
+]

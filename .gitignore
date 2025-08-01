@@ -1,43 +1,32 @@
-# Environment variables and secrets
-.env
-.env.local
-.env.production
-.env.staging
-*.env
-
-# API Keys and credentials
-**/config/credentials.json
-**/config/secrets.json
-api_keys.txt
-credentials.txt
-
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-
-# Logs
-logs/
-*.log
+# Node.js
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# Logs
+logs/
+*.log
+
 # Runtime data
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
 
 # Coverage directory used by tools like istanbul
 coverage/
-*.lcov
 
 # nyc test coverage
 .nyc_output
 
 # Dependency directories
-node_modules/
 jspm_packages/
 
 # Optional npm cache directory
@@ -52,41 +41,18 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
+# Node-RED specific
+flows_cred.json
+.config.*.json
 
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# next.js build output
-.next
-
-# nuxt.js build output
-.nuxt
-
-# vuepress build output
-.vuepress/dist
-
-# Serverless directories
-.serverless
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# Backup files
+# Backups
+backups/
 *.backup
-*.bak
-*~
+
+# Temporary files
+temp/
+tmp/
+*.tmp
 
 # OS generated files
 .DS_Store
@@ -104,17 +70,15 @@ Thumbs.db
 *.swo
 *~
 
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Build artifacts
+dist/build/
+build/
 
-# Node-RED specific
-flows_*.json.backup
-.config.*.json.backup
+# Docker
+.dockerignore
 
-# SolarFactsNW specific
-/logs/fallbacks/
-/test_outputs/
-/mock_data/
-phase4c_verification_*.json
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr

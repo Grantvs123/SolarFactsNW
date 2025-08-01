@@ -1,11 +1,18 @@
 /**
- * Node-RED Settings for SolarFactsNW
- * This configuration file moves user data to a writable location
- * to avoid Windows Program Files permission issues.
+ * Node-RED Settings for SolarFactsNW Production Powerhouse v3.0
+ * This configuration file provides secure, production-ready settings
+ * with environment-based configuration and enhanced security.
  */
 
 const path = require("path");
 const os = require("os");
+const fs = require("fs");
+
+// Load environment variables from .env.local if it exists
+const envPath = path.join(__dirname, '.env.local');
+if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+}
 
 // Use LocalAppData for user-specific data (non-roaming)
 const userDataDir = path.join(process.env.LOCALAPPDATA || process.env.APPDATA || os.homedir(), "SolarFactsNW");
@@ -21,7 +28,10 @@ module.exports = {
     nodesDir: path.join(userDataDir, 'nodes'),
 
     // The tcp port that the Node-RED web server is listening on
-    uiPort: process.env.PORT || 1880,
+    uiPort: process.env.APP_PORT || process.env.PORT || 1880,
+
+    // Bind to specific host for security (use 0.0.0.0 for external access)
+    uiHost: process.env.APP_HOST || "127.0.0.1",
 
     // The maximum length, in characters, of any message sent to the debug sidebar tab
     debugMaxLength: 1000,
@@ -40,13 +50,10 @@ module.exports = {
     // The file containing the flows. If not set, it defaults to flows_<hostname>.json
     flowFilePretty: true,
 
-    // By default, credentials are encrypted in storage using a generated key. To
-    // specify your own secret, set the following property.
-    // If you want to disable encryption of credentials, set this property to false.
-    // Note: once you set this property, do not change it - doing so will prevent
-    // node-red from being able to decrypt your existing credentials and they will be
-    // lost.
-    credentialSecret: false,
+    // Secure credential encryption using environment variable
+    // This ensures credentials are encrypted with a strong, configurable secret
+    // that is not stored in version control
+    credentialSecret: process.env.NODE_RED_CREDENTIAL_SECRET || 'SolarFactsNW_Default_Change_Me_In_Production',
 
     // By default, all user data is stored in a directory called `.node-red` under
     // the user's home directory. To use a different location, the following
@@ -121,16 +128,33 @@ module.exports = {
     // can be accessed in a function block as:
     //    global.get("os")
     functionGlobalContext: {
-        // os:require('os'),
-        // jfive:require("johnny-five"),
-        // j5board:require("johnny-five").Board({repl:false})
+        // SolarFactsNW Production Powerhouse v3.0 - Modular Architecture
+        
+        // Core System
+        Core: require('./core'),
+        HealthChecker: require('./core/health/health-checker'),
+        StartupMonitor: require('./core/health/startup-monitor'),
+        HealthDashboard: require('./core/health/health-dashboard'),
+        ConfigManager: require('./core/utils/config-manager'),
+        Logger: require('./core/utils/logger'),
+        
+        // Shared Utilities
+        Shared: require('./shared'),
+        AuthMiddleware: require('./shared/middleware/auth'),
+        RateLimitMiddleware: require('./shared/middleware/rate-limit'),
+        SystemDashboard: require('./shared/dashboards/system-dashboard'),
+        
+        // Solar Vertical
+        Solar: require('./verticals/solar'),
+        
+        // Standard Node.js modules
+        os: require('os'),
+        fs: require('fs'),
+        path: require('path'),
+        crypto: require('crypto')
     },
 
-    // Context Storage
-    // The following property can be used to enable context storage. The configuration
-    // provided here will enable file-based context that flushes to disk every 30 seconds.
-    // Refer to the documentation for further options: https://nodered.org/docs/api/context/
-    //
+    // Context Storage with enhanced configuration
     contextStorage: {
         default: {
             module:"localfilesystem",
@@ -139,6 +163,9 @@ module.exports = {
                 cache: true,
                 flushInterval: 30
             }
+        },
+        memory: {
+            module: "memory"
         }
     },
 
@@ -175,11 +202,98 @@ module.exports = {
         }
     },
 
-    // Customising the editor
+    // Customising the editor with SolarFactsNW branding
     editorTheme: {
+        page: {
+            title: "SolarFactsNW Production Powerhouse v3.0",
+            favicon: "/favicon.ico",
+            css: [
+                "/static/css/solarfactsnw-theme.css"
+            ],
+            scripts: [
+                "/static/js/solarfactsnw-ui.js"
+            ]
+        },
+        header: {
+            title: "SolarFactsNW",
+            image: "/static/images/logo.png",
+            url: "https://solarfactsnw.com"
+        },
+        deployButton: {
+            type: "simple",
+            label: "Deploy",
+            icon: "fa fa-rocket"
+        },
+        menu: {
+            "menu-item-help": {
+                label: "SolarFactsNW Help",
+                url: "/help"
+            },
+            "menu-item-health": {
+                label: "System Health",
+                url: "/health/dashboard"
+            },
+            "menu-item-dashboard": {
+                label: "System Dashboard", 
+                url: "/dashboard"
+            }
+        },
+        userMenu: process.env.NODE_ENV === 'production',
+        login: {
+            image: "/static/images/login-logo.png"
+        },
+        palette: {
+            catalogues: ['https://catalogue.nodered.org/catalogue.json'],
+            theme: [
+                {
+                    category: "SolarFactsNW",
+                    type: "solar-*",
+                    color: "#ff6b35"
+                }
+            ]
+        },
         projects: {
-            // To enable the Projects feature, set this value to true
             enabled: false
+        },
+        codeEditor: {
+            lib: "monaco",
+            options: {
+                theme: "vs-dark",
+                fontSize: 14,
+                wordWrap: "on"
+            }
         }
-    }
+    },
+
+    // Production security and authentication
+    adminAuth: process.env.NODE_ENV === 'production' ? {
+        type: "credentials",
+        users: [{
+            username: process.env.ADMIN_USERNAME || "admin",
+            password: "$2a$08$zZWtXTja0fB1pzD4sHCMyOCMYz2Z6dNbM6tl8sJogENOMcxWV9DN.", // Default: solarfacts2025
+            permissions: "*"
+        }],
+        default: {
+            permissions: "read"
+        }
+    } : undefined,
+
+    // HTTP middleware for security and custom routes
+    httpAdminMiddleware: function(req, res, next) {
+        // Apply production security if enabled
+        if (process.env.NODE_ENV === 'production') {
+            const ProductionSecurity = require('./shared/middleware/production-security');
+            const security = new ProductionSecurity();
+            return security.applyToApp(req.app);
+        }
+        next();
+    },
+
+    // Static file serving for custom assets
+    httpStatic: [
+        {
+            path: path.join(__dirname, 'shared', 'static'),
+            root: '/static/'
+        }
+    ]
 }

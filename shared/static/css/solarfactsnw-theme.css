@@ -1,0 +1,305 @@
+
+/**
+ * SolarFactsNW Production Theme
+ * Custom branding and styling for the Node-RED interface
+ */
+
+:root {
+    --solar-primary: #ff6b35;
+    --solar-secondary: #004e89;
+    --solar-accent: #ffd23f;
+    --solar-success: #06d6a0;
+    --solar-warning: #f18701;
+    --solar-danger: #e63946;
+    --solar-dark: #2d3436;
+    --solar-light: #f8f9fa;
+    --solar-gradient: linear-gradient(135deg, #ff6b35 0%, #004e89 100%);
+}
+
+/* Header Branding */
+.red-ui-header {
+    background: var(--solar-gradient) !important;
+    border-bottom: 3px solid var(--solar-accent);
+}
+
+.red-ui-header .red-ui-header-logo {
+    background-image: none !important;
+    color: white !important;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.red-ui-header .red-ui-header-logo::before {
+    content: "🌞 SolarFactsNW v3.0";
+    font-size: 16px;
+}
+
+/* Sidebar Styling */
+.red-ui-sidebar {
+    background-color: var(--solar-light) !important;
+    border-right: 2px solid var(--solar-primary);
+}
+
+.red-ui-sidebar-header {
+    background: var(--solar-secondary) !important;
+    color: white !important;
+}
+
+/* Node Palette */
+.red-ui-palette {
+    background-color: var(--solar-light) !important;
+}
+
+.red-ui-palette-header {
+    background: var(--solar-secondary) !important;
+    color: white !important;
+}
+
+.red-ui-palette-node {
+    border: 1px solid var(--solar-primary) !important;
+    background: white !important;
+}
+
+.red-ui-palette-node:hover {
+    background: var(--solar-accent) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Workspace */
+.red-ui-workspace {
+    background: linear-gradient(45deg, #f8f9fa 25%, transparent 25%), 
+                linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f8f9fa 75%), 
+                linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* Nodes */
+.red-ui-flow-node {
+    border: 2px solid var(--solar-primary) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.red-ui-flow-node.red-ui-flow-node-selected {
+    border-color: var(--solar-accent) !important;
+    box-shadow: 0 0 10px var(--solar-accent) !important;
+}
+
+/* Buttons */
+.red-ui-button {
+    background: var(--solar-primary) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease !important;
+}
+
+.red-ui-button:hover {
+    background: var(--solar-secondary) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.red-ui-button.red-ui-button-small {
+    background: var(--solar-accent) !important;
+    color: var(--solar-dark) !important;
+}
+
+/* Tabs */
+.red-ui-tabs {
+    background: var(--solar-light) !important;
+    border-bottom: 2px solid var(--solar-primary) !important;
+}
+
+.red-ui-tab {
+    background: white !important;
+    border: 1px solid var(--solar-primary) !important;
+    border-bottom: none !important;
+    color: var(--solar-dark) !important;
+}
+
+.red-ui-tab.active {
+    background: var(--solar-primary) !important;
+    color: white !important;
+}
+
+/* Forms */
+.red-ui-form-row label {
+    color: var(--solar-dark) !important;
+    font-weight: 600 !important;
+}
+
+.red-ui-form-input {
+    border: 2px solid var(--solar-primary) !important;
+    border-radius: 4px !important;
+    padding: 8px !important;
+}
+
+.red-ui-form-input:focus {
+    border-color: var(--solar-accent) !important;
+    box-shadow: 0 0 5px var(--solar-accent) !important;
+}
+
+/* Status indicators */
+.red-ui-flow-node-status-dot {
+    border: 2px solid white !important;
+}
+
+.red-ui-flow-node-status-dot.red-ui-flow-node-status-dot-green {
+    background: var(--solar-success) !important;
+}
+
+.red-ui-flow-node-status-dot.red-ui-flow-node-status-dot-red {
+    background: var(--solar-danger) !important;
+}
+
+.red-ui-flow-node-status-dot.red-ui-flow-node-status-dot-yellow {
+    background: var(--solar-warning) !important;
+}
+
+/* Debug sidebar */
+.red-ui-debug-msg {
+    border-left: 4px solid var(--solar-primary) !important;
+    background: white !important;
+    margin: 4px 0 !important;
+    border-radius: 0 4px 4px 0 !important;
+}
+
+.red-ui-debug-msg-date {
+    color: var(--solar-secondary) !important;
+    font-weight: 600 !important;
+}
+
+/* Context menu */
+.red-ui-menu {
+    background: white !important;
+    border: 2px solid var(--solar-primary) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.red-ui-menu-option {
+    color: var(--solar-dark) !important;
+}
+
+.red-ui-menu-option:hover {
+    background: var(--solar-accent) !important;
+    color: var(--solar-dark) !important;
+}
+
+/* Loading screen */
+.red-ui-loading-progress {
+    background: var(--solar-gradient) !important;
+}
+
+.red-ui-loading-bar {
+    background: var(--solar-accent) !important;
+}
+
+/* Custom branding footer */
+.solarfactsnw-footer {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: var(--solar-gradient);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Production mode indicator */
+.production-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: var(--solar-danger);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 1001;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Health status indicator */
+.health-indicator {
+    position: fixed;
+    top: 50px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 1001;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.health-indicator.healthy {
+    background: var(--solar-success);
+    color: white;
+}
+
+.health-indicator.degraded {
+    background: var(--solar-warning);
+    color: var(--solar-dark);
+}
+
+.health-indicator.unhealthy {
+    background: var(--solar-danger);
+    color: white;
+    animation: pulse 1s infinite;
+}
+
+.health-indicator:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .red-ui-header .red-ui-header-logo::before {
+        content: "🌞 SolarFactsNW";
+        font-size: 14px;
+    }
+    
+    .solarfactsnw-footer {
+        bottom: 5px;
+        right: 5px;
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+    
+    .production-indicator,
+    .health-indicator {
+        top: 5px;
+        right: 5px;
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+    
+    .health-indicator {
+        top: 35px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .solarfactsnw-footer,
+    .production-indicator,
+    .health-indicator {
+        display: none !important;
+    }
+}
